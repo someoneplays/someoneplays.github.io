@@ -1,167 +1,827 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Someone Plays</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
-      line-height: 1.6;
+<!-- =========================================================
+     DOCUMENT HEAD
+     Meta tags, title, and the optional Google Font import.
+     ========================================================= -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0e1a" />
+<meta name="description" content="Someone Plays creates games built around connection, conversation, curiosity, and memorable moments." />
+<title>Someone Plays &mdash; Let's Play A Game</title>
+
+<!--
+  Optional Google Font import for the playful arcade/brush-style headings.
+  If this fails to load (offline, blocked, etc.) the "font-family" fallback
+  stack below (cursive / Comic Sans MS / system-ui) keeps the page fully
+  readable, so nothing breaks without it.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rubik+Spray+Paint&display=swap" rel="stylesheet" />
+
+<style>
+  /* =========================================================
+     CSS: DESIGN TOKENS
+     Colors, fonts, and spacing values pulled from the app's
+     own palette so the site visually matches it.
+     ========================================================= */
+  :root {
+    --color-bg-navy: #0a0e1a;
+    --color-bg-black: #050608;
+    --color-red: #e8203d;
+    --color-blue: #1c5cff;
+    --color-white: #f5f8ff;
+    --color-text-body: #e9edf7;
+    --color-text-muted: #b7c0d6;
+    --color-panel-bg: rgba(0, 0, 0, 0.78);
+    --color-panel-border: #e8203d;
+    --color-focus-ring: #7dd3fc;
+
+    --font-brush: 'Rubik Spray Paint', 'Comic Sans MS', cursive, system-ui, sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+    --radius-lg: 22px;
+    --radius-md: 16px;
+    --shell-max-width: 640px;
+
+    --transition-fast: 220ms ease;
+  }
+
+  /* =========================================================
+     CSS: BASE / RESET
+     ========================================================= */
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--font-body);
+    color: var(--color-text-body);
+    background: var(--color-bg-black);
+    overflow-x: hidden;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  h1, h2 {
+    font-family: var(--font-brush);
+    margin: 0 0 12px;
+  }
+
+  p {
+    line-height: 1.6;
+  }
+
+  a {
+    color: var(--color-focus-ring);
+  }
+
+  /* Visible keyboard-focus ring; mouse/touch clicks don't trigger it. */
+  :focus {
+    outline: none;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+
+  /* =========================================================
+     CSS: ATMOSPHERIC BACKGROUND
+     Deep navy/black gradient, diagonal red/blue accent lines,
+     a subtle hexagon texture, and soft corner glows.
+     All decorative-only and ignored by assistive tech.
+     ========================================================= */
+  .bg-decor {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(28, 92, 255, 0.16), transparent 60%),
+      linear-gradient(160deg, var(--color-bg-navy) 0%, var(--color-bg-black) 60%, #000 100%);
+  }
+
+  .bg-decor__glow-red,
+  .bg-decor__glow-blue {
+    position: absolute;
+    width: 60vw;
+    height: 60vw;
+    max-width: 520px;
+    max-height: 520px;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.35;
+  }
+
+  .bg-decor__glow-red {
+    top: -12%;
+    left: -18%;
+    background: radial-gradient(circle, var(--color-red), transparent 70%);
+  }
+
+  .bg-decor__glow-blue {
+    bottom: -14%;
+    right: -18%;
+    background: radial-gradient(circle, var(--color-blue), transparent 70%);
+  }
+
+  .bg-decor__diagonals {
+    position: absolute;
+    inset: 0;
+    opacity: 0.5;
+    mix-blend-mode: screen;
+    background:
+      repeating-linear-gradient(
+        135deg,
+        rgba(232, 32, 61, 0.09) 0px,
+        rgba(232, 32, 61, 0.09) 2px,
+        transparent 2px,
+        transparent 130px
+      ),
+      repeating-linear-gradient(
+        135deg,
+        rgba(28, 92, 255, 0.09) 65px,
+        rgba(28, 92, 255, 0.09) 67px,
+        transparent 67px,
+        transparent 195px
+      );
+  }
+
+  /* Subtle hexagon texture as a tiny tiled inline SVG (no external file). */
+  .bg-decor__hex {
+    position: absolute;
+    inset: 0;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='56' viewBox='0 0 32 56'%3E%3Cpath d='M16 0 L32 9 L32 27 L16 36 L0 27 L0 9 Z' fill='none' stroke='%23ffffff' stroke-width='1'/%3E%3C/svg%3E");
+    background-size: 32px 56px;
+  }
+
+  /* Restrained glowing particles + a couple of hearts. */
+  .bg-decor__particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: particle-float 6s ease-in-out infinite;
+  }
+
+  .bg-decor__particle--red {
+    background: var(--color-red);
+    box-shadow: 0 0 10px 2px rgba(232, 32, 61, 0.8);
+  }
+
+  .bg-decor__particle--blue {
+    background: var(--color-blue);
+    box-shadow: 0 0 10px 2px rgba(28, 92, 255, 0.8);
+  }
+
+  .bg-decor__heart {
+    position: absolute;
+    font-size: 14px;
+    line-height: 1;
+    animation: particle-float 7s ease-in-out infinite;
+  }
+
+  .bg-decor__heart--red {
+    color: var(--color-red);
+    text-shadow: 0 0 8px rgba(232, 32, 61, 0.9);
+  }
+
+  .bg-decor__heart--blue {
+    color: var(--color-blue);
+    text-shadow: 0 0 8px rgba(28, 92, 255, 0.9);
+  }
+
+  @keyframes particle-float {
+    0%, 100% { transform: translateY(0); opacity: 0.55; }
+    50% { transform: translateY(-14px); opacity: 1; }
+  }
+
+  /*
+    OPTIONAL: to use a real background image instead of (or on top of) the
+    CSS atmosphere above, add a rule like:
+      .bg-decor { background-image: url('images/app-background.jpg'); background-size: cover; }
+    and keep this file otherwise untouched.
+  */
+
+  /* =========================================================
+     CSS: APP SHELL / LAYOUT
+     Centers a mobile-app-style column on larger screens.
+     ========================================================= */
+  .app-shell {
+    position: relative;
+    z-index: 1;
+    max-width: var(--shell-max-width);
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 20px 16px;
+  }
+
+  main {
+    flex: 1;
+  }
+
+  /* =========================================================
+     CSS: SCREEN TRANSITIONS
+     Only one .screen is shown at a time; opacity fade is
+     driven by toggling the --visible modifier class in JS.
+     ========================================================= */
+  .screen {
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+  }
+
+  .screen--visible {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .screen {
+      transition: none;
     }
 
-    header {
-      padding: 60px 20px;
-      text-align: center;
-      background: linear-gradient(135deg, #111, #222);
+    .bg-decor__particle,
+    .bg-decor__heart {
+      animation: none;
     }
+  }
 
-    h1 {
-      font-size: 48px;
-      margin-bottom: 10px;
-    }
+  /* =========================================================
+     CSS: TITLE / MAIN MENU
+     ========================================================= */
+  .site-title {
+    text-align: center;
+    font-size: clamp(2rem, 9vw, 3rem);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-shadow: 3px 4px 1px rgba(0, 0, 0, 0.55);
+  }
 
-    .tagline {
-      font-size: 20px;
-      color: #ccc;
-    }
+  .site-title__word--red { color: var(--color-red); }
+  .site-title__word--blue { color: var(--color-blue); }
 
-    nav {
-      text-align: center;
-      padding: 15px;
-      background: #000;
-    }
+  .site-tagline {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 1.05rem;
+    margin: 0 0 28px;
+  }
 
-    nav a {
-      color: #fff;
-      margin: 0 12px;
-      text-decoration: none;
-      font-weight: bold;
-    }
+  .menu-panel {
+    background: var(--color-panel-bg);
+    border: 1.6px solid var(--color-panel-border);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 22px rgba(232, 32, 61, 0.28);
+  }
 
-    section {
-      max-width: 850px;
-      margin: auto;
-      padding: 40px 20px;
-    }
+  .menu-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
 
-    .card {
-      background: #1c1c1c;
-      padding: 25px;
-      border-radius: 12px;
-      margin-top: 20px;
-      border: 1px solid #333;
+  @media (min-width: 560px) {
+    .menu-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 18px;
     }
+  }
 
-    h2 {
-      color: #ffffff;
-    }
+  /* =========================================================
+     CSS: BUTTONS
+     Large black nav buttons with a glowing rounded red
+     outline, and the app-style white-outlined Back button.
+     ========================================================= */
+  .menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 64px;
+    width: 100%;
+    padding: 14px 16px;
+    background: #000;
+    border: 1.6px solid var(--color-red);
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 14px rgba(232, 32, 61, 0.35);
+    font-family: var(--font-brush);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease;
+  }
 
-    a {
-      color: #7dd3fc;
-    }
+  .menu-btn:hover {
+    box-shadow: 0 0 20px rgba(232, 32, 61, 0.55);
+  }
 
-    footer {
-      text-align: center;
-      padding: 30px 20px;
-      background: #000;
-      color: #aaa;
-      font-size: 14px;
-    }
-  </style>
+  .menu-btn:active {
+    transform: scale(0.97);
+    opacity: 0.88;
+  }
+
+  .menu-btn__accent--red { color: var(--color-red); }
+  .menu-btn__accent--blue { color: var(--color-blue); }
+  .menu-btn__accent--white { color: var(--color-white); }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 56px;
+    width: 100%;
+    margin-top: 28px;
+    padding: 12px 24px;
+    background: #000;
+    color: var(--color-blue);
+    border: 3px solid var(--color-white);
+    border-radius: var(--radius-md);
+    font-family: var(--font-brush);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease;
+  }
+
+  .back-btn:hover {
+    box-shadow: 0 0 16px rgba(245, 248, 255, 0.35);
+  }
+
+  .back-btn:active {
+    transform: scale(0.97);
+    opacity: 0.85;
+  }
+
+  .back-btn__arrow {
+    font-size: 1.1em;
+  }
+
+  /* =========================================================
+     CSS: CONTENT PANELS (Games Lab, About, News, Updates,
+     Privacy, Support)
+     ========================================================= */
+  .content-panel {
+    background: var(--color-panel-bg);
+    border: 1.6px solid var(--color-panel-border);
+    border-radius: var(--radius-lg);
+    padding: 26px 22px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 22px rgba(232, 32, 61, 0.25);
+  }
+
+  .content-panel h2 {
+    color: var(--color-white);
+    text-transform: uppercase;
+    font-size: 1.6rem;
+    text-shadow: 3px 4px 1px rgba(0, 0, 0, 0.55);
+  }
+
+  .content-panel .emphasis {
+    color: var(--color-blue);
+    font-weight: bold;
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+  }
+
+  .content-panel p {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-text-body);
+  }
+
+  .content-panel .empty-note {
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  /* =========================================================
+     CSS: FOOTER
+     ========================================================= */
+  .site-footer {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    padding: 20px 10px 10px;
+  }
+
+  /* Utility class for screen-reader-only text if ever needed. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
 </head>
 <body>
 
-  <header>
-    <h1>Someone Plays</h1>
-    <p class="tagline">Games that bring people together.</p>
-  </header>
+<!-- =========================================================
+     HTML: DECORATIVE BACKGROUND (aria-hidden, non-interactive)
+     ========================================================= -->
+<div class="bg-decor" aria-hidden="true">
+  <div class="bg-decor__glow-red"></div>
+  <div class="bg-decor__glow-blue"></div>
+  <div class="bg-decor__diagonals"></div>
+  <div class="bg-decor__hex"></div>
 
-  <nav>
-    <a href="#games">Games</a>
-    <a href="#privacy">Privacy</a>
-    <a href="#support">Support</a>
-  </nav>
+  <span class="bg-decor__particle bg-decor__particle--red" style="top:12%; left:8%; width:6px; height:6px; animation-delay:0s;"></span>
+  <span class="bg-decor__particle bg-decor__particle--blue" style="top:22%; left:88%; width:8px; height:8px; animation-delay:0.6s;"></span>
+  <span class="bg-decor__particle bg-decor__particle--red" style="top:48%; left:4%; width:5px; height:5px; animation-delay:1.2s;"></span>
+  <span class="bg-decor__particle bg-decor__particle--blue" style="top:65%; left:92%; width:7px; height:7px; animation-delay:1.8s;"></span>
+  <span class="bg-decor__particle bg-decor__particle--red" style="top:82%; left:15%; width:6px; height:6px; animation-delay:0.3s;"></span>
+  <span class="bg-decor__particle bg-decor__particle--blue" style="top:90%; left:70%; width:5px; height:5px; animation-delay:0.9s;"></span>
 
-  <section>
-    <h2>About Someone Plays</h2>
-    <p>
-      Someone Plays creates games built around connection, conversation,
-      curiosity, and memorable moments.
-    </p>
+  <span class="bg-decor__heart bg-decor__heart--red" style="top:34%; left:80%; animation-delay:0.4s;">&#10084;</span>
+  <span class="bg-decor__heart bg-decor__heart--blue" style="top:75%; left:6%; animation-delay:1.1s;">&#10084;</span>
+</div>
 
-    <div class="card" id="games">
-      <h2>Let’s Play A Game</h2>
-      <p><strong>At the end of the day… it's tomorrow.</strong></p>
-      <p>
-        Let’s Play A Game is an offline party and relationship game experience
-        designed for couples, friends, families, and groups who want to laugh,
-        connect, and start conversations.
-      </p>
-    </div>
+<div class="app-shell">
+  <main id="app-main">
 
-    <div class="card" id="privacy">
-      <h2>Privacy Policy</h2>
-      <p><strong>Effective Date:</strong> June 2026</p>
+    <!-- =========================================================
+         HTML: MAIN MENU (visible by default, including with
+         JavaScript disabled)
+         ========================================================= -->
+    <section
+      id="screen-menu"
+      class="screen screen--visible"
+      data-screen="menu"
+      aria-labelledby="menu-heading"
+    >
+      <h1 id="menu-heading" class="site-title" tabindex="-1" data-screen-heading>
+        <span class="site-title__word--red">SOMEONE</span>
+        <span class="site-title__word--blue">PLAYS</span>
+      </h1>
+      <p class="site-tagline">Games that bring people together.</p>
 
-      <p>
-        Someone Plays respects your privacy.
-      </p>
+      <nav class="menu-panel" aria-label="Main navigation">
+        <div class="menu-grid">
+          <button type="button" class="menu-btn" data-nav-target="games">
+            <span class="menu-btn__accent--blue">GAMES</span>&nbsp;<span class="menu-btn__accent--red">LABORATORY</span>
+          </button>
+          <button type="button" class="menu-btn" data-nav-target="about">
+            <span class="menu-btn__accent--blue">ABOUT</span>&nbsp;<span class="menu-btn__accent--red">US</span>
+          </button>
+          <button type="button" class="menu-btn" data-nav-target="news">
+            <span class="menu-btn__accent--red">NEWS</span>
+          </button>
+          <button type="button" class="menu-btn" data-nav-target="updates">
+            <span class="menu-btn__accent--blue">UPDATES</span>
+          </button>
+          <button type="button" class="menu-btn" data-nav-target="privacy">
+            <span class="menu-btn__accent--white">PRIVACY</span>
+          </button>
+          <button type="button" class="menu-btn" data-nav-target="support">
+            <span class="menu-btn__accent--red">SUPPORT</span>
+          </button>
+        </div>
+      </nav>
+    </section>
 
-      <p>
-        Let’s Play A Game does not collect, store, sell, or share personal
-        information.
-      </p>
+    <!-- =========================================================
+         HTML: GAMES LABORATORY
+         ========================================================= -->
+    <section
+      id="screen-games"
+      class="screen"
+      hidden
+      data-screen="games"
+      aria-labelledby="games-heading"
+    >
+      <div class="content-panel">
+        <h2 id="games-heading" tabindex="-1" data-screen-heading>Let&rsquo;s Play A Game</h2>
+        <p class="emphasis">At the end of the day&hellip; it's tomorrow.</p>
+        <p>
+          Let&rsquo;s Play A Game is an offline party and relationship game experience
+          designed for couples, friends, families, and groups who want to laugh,
+          connect, and start conversations.
+        </p>
+        <button type="button" class="back-btn" data-nav-target="menu">
+          <span class="back-btn__arrow" aria-hidden="true">&#8592;</span> BACK
+        </button>
+      </div>
+    </section>
 
-      <p>
-        The app does not require accounts, logins, email addresses, phone
-        numbers, names, location data, photos, contacts, analytics, advertising
-        SDKs, or tracking.
-      </p>
+    <!-- =========================================================
+         HTML: ABOUT US
+         ========================================================= -->
+    <section
+      id="screen-about"
+      class="screen"
+      hidden
+      data-screen="about"
+      aria-labelledby="about-heading"
+    >
+      <div class="content-panel">
+        <h2 id="about-heading" tabindex="-1" data-screen-heading>About Someone Plays</h2>
+        <p>
+          Someone Plays creates games built around connection, conversation,
+          curiosity, and memorable moments.
+        </p>
+        <button type="button" class="back-btn" data-nav-target="menu">
+          <span class="back-btn__arrow" aria-hidden="true">&#8592;</span> BACK
+        </button>
+      </div>
+    </section>
 
-      <p>
-        Gameplay remains on your device. No gameplay information is transmitted
-        to Someone Plays.
-      </p>
+    <!-- =========================================================
+         HTML: NEWS
+         ========================================================= -->
+    <section
+      id="screen-news"
+      class="screen"
+      hidden
+      data-screen="news"
+      aria-labelledby="news-heading"
+    >
+      <div class="content-panel">
+        <h2 id="news-heading" tabindex="-1" data-screen-heading>News</h2>
+        <div class="news-content">
+          <!-- Future News entries can be added inside this container. -->
+        </div>
+        <button type="button" class="back-btn" data-nav-target="menu">
+          <span class="back-btn__arrow" aria-hidden="true">&#8592;</span> BACK
+        </button>
+      </div>
+    </section>
 
-      <p>
-        Apple may collect information related to downloading apps through the
-        App Store according to Apple’s own privacy practices.
-      </p>
+    <!-- =========================================================
+         HTML: UPDATES
+         ========================================================= -->
+    <section
+      id="screen-updates"
+      class="screen"
+      hidden
+      data-screen="updates"
+      aria-labelledby="updates-heading"
+    >
+      <div class="content-panel">
+        <h2 id="updates-heading" tabindex="-1" data-screen-heading>Updates</h2>
+        <div class="updates-content">
+          <!-- Future Updates entries can be added inside this container. -->
+        </div>
+        <button type="button" class="back-btn" data-nav-target="menu">
+          <span class="back-btn__arrow" aria-hidden="true">&#8592;</span> BACK
+        </button>
+      </div>
+    </section>
 
-      <p>
-        If this Privacy Policy changes, the updated version will be posted on
-        this page.
-      </p>
+    <!-- =========================================================
+         HTML: PRIVACY
+         ========================================================= -->
+    <section
+      id="screen-privacy"
+      class="screen"
+      hidden
+      data-screen="privacy"
+      aria-labelledby="privacy-heading"
+    >
+      <div class="content-panel">
+        <h2 id="privacy-heading" tabindex="-1" data-screen-heading>Privacy Policy</h2>
+        <p><strong>Effective Date:</strong> June 2026</p>
+        <p>Someone Plays respects your privacy.</p>
+        <p>
+          Let&rsquo;s Play A Game does not collect, store, sell, or share personal
+          information.
+        </p>
+        <p>
+          The app does not require accounts, logins, email addresses, phone
+          numbers, names, location data, photos, contacts, analytics, advertising
+          SDKs, or tracking.
+        </p>
+        <p>
+          Gameplay remains on your device. No gameplay information is transmitted
+          to Someone Plays.
+        </p>
+        <p>
+          Apple may collect information related to downloading apps through the
+          App Store according to Apple&rsquo;s own privacy practices.
+        </p>
+        <p>
+          If this Privacy Policy changes, the updated version will be posted on
+          this page.
+        </p>
+        <p>
+          Questions? Contact us at:
+          <a href="mailto:sodapopstudios.dev@gmail.com">sodapopstudios.dev@gmail.com</a>
+        </p>
+        <button type="button" class="back-btn" data-nav-target="menu">
+          <span class="back-btn__arrow" aria-hidden="true">&#8592;</span> BACK
+        </button>
+      </div>
+    </section>
 
-      <p>
-        Questions? Contact us at:
-        <a href="mailto:sodapopstudios.dev@gmail.com">
-          sodapopstudios.dev@gmail.com
-        </a>
-      </p>
-    </div>
+    <!-- =========================================================
+         HTML: SUPPORT
+         ========================================================= -->
+    <section
+      id="screen-support"
+      class="screen"
+      hidden
+      data-screen="support"
+      aria-labelledby="support-heading"
+    >
+      <div class="content-panel">
+        <h2 id="support-heading" tabindex="-1" data-screen-heading>Support</h2>
+        <p>Need help with Let&rsquo;s Play A Game?</p>
+        <p>
+          Email us at:
+          <a href="mailto:sodapopstudios.dev@gmail.com">sodapopstudios.dev@gmail.com</a>
+        </p>
+        <button type="button" class="back-btn" data-nav-target="menu">
+          <span class="back-btn__arrow" aria-hidden="true">&#8592;</span> BACK
+        </button>
+      </div>
+    </section>
 
-    <div class="card" id="support">
-      <h2>Support</h2>
-      <p>
-        Need help with Let’s Play A Game?
-      </p>
-      <p>
-        Email us at:
-        <a href="mailto:sodapopstudios.dev@gmail.com">
-          sodapopstudios.dev@gmail.com
-        </a>
-      </p>
-    </div>
-  </section>
+  </main>
 
-  <footer>
-    © 2026 Someone Plays. All rights reserved.
+  <!-- =========================================================
+       HTML: FOOTER
+       ========================================================= -->
+  <footer class="site-footer">
+    &copy; 2026 Someone Plays. All rights reserved.
   </footer>
+</div>
+
+<!-- =========================================================
+     JAVASCRIPT: SCREEN NAVIGATION
+     Handles button clicks, fade transitions, focus movement,
+     scroll-to-top, and History API back/forward support.
+     Wrapped defensively so a runtime error can't leave the
+     whole page blank -- the Main Menu stays visible either way.
+     ========================================================= -->
+<script>
+  (function () {
+    'use strict';
+
+    var VALID_SCREENS = ['menu', 'games', 'about', 'news', 'updates', 'privacy', 'support'];
+    var TRANSITION_MS = 220;
+
+    var reduceMotionQuery = window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : null;
+    var prefersReducedMotion = !!(reduceMotionQuery && reduceMotionQuery.matches);
+    var transitionDuration = prefersReducedMotion ? 0 : TRANSITION_MS;
+
+    var screens = {};
+    VALID_SCREENS.forEach(function (id) {
+      screens[id] = document.getElementById('screen-' + id);
+    });
+
+    var currentScreen = 'menu';
+    var isAnimating = false;
+    var pendingNav = null;
+
+    function getScreenFromHash() {
+      var hash = (window.location.hash || '').replace('#', '');
+      return VALID_SCREENS.indexOf(hash) !== -1 ? hash : null;
+    }
+
+    function focusHeading(screenEl) {
+      var heading = screenEl.querySelector('[data-screen-heading]');
+      if (heading && typeof heading.focus === 'function') {
+        heading.focus({ preventScroll: true });
+      }
+    }
+
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      });
+    }
+
+    function showScreen(targetId, options) {
+      options = options || {};
+      var pushHistory = options.push !== false;
+
+      if (!screens[targetId]) {
+        targetId = 'menu';
+      }
+
+      if (targetId === currentScreen) {
+        return;
+      }
+
+      if (isAnimating) {
+        pendingNav = { id: targetId, options: options };
+        return;
+      }
+
+      var fromEl = screens[currentScreen];
+      var toEl = screens[targetId];
+
+      isAnimating = true;
+      fromEl.classList.remove('screen--visible');
+
+      window.setTimeout(function () {
+        fromEl.hidden = true;
+
+        toEl.hidden = false;
+        // Force a reflow so the opacity transition below actually plays.
+        void toEl.offsetWidth;
+        toEl.classList.add('screen--visible');
+
+        currentScreen = targetId;
+
+        focusHeading(toEl);
+        scrollToTop();
+
+        if (pushHistory) {
+          var url = targetId === 'menu' ? '#' : '#' + targetId;
+          history.pushState({ screen: targetId }, '', url);
+        }
+
+        isAnimating = false;
+
+        if (pendingNav) {
+          var next = pendingNav;
+          pendingNav = null;
+          showScreen(next.id, next.options);
+        }
+      }, transitionDuration);
+    }
+
+    function initNavButtons() {
+      var buttons = document.querySelectorAll('[data-nav-target]');
+      for (var i = 0; i < buttons.length; i += 1) {
+        buttons[i].addEventListener('click', (function (button) {
+          return function () {
+            showScreen(button.getAttribute('data-nav-target'));
+          };
+        })(buttons[i]));
+      }
+    }
+
+    function initHistory() {
+      var initialScreen = getScreenFromHash() || 'menu';
+
+      history.replaceState(
+        { screen: initialScreen },
+        '',
+        initialScreen === 'menu' ? '#' : '#' + initialScreen
+      );
+
+      if (initialScreen !== 'menu' && screens[initialScreen]) {
+        screens.menu.hidden = true;
+        screens.menu.classList.remove('screen--visible');
+
+        screens[initialScreen].hidden = false;
+        screens[initialScreen].classList.add('screen--visible');
+        currentScreen = initialScreen;
+      }
+
+      window.addEventListener('popstate', function (event) {
+        var screen = (event.state && event.state.screen) || getScreenFromHash() || 'menu';
+        showScreen(screen, { push: false });
+      });
+    }
+
+    function init() {
+      initNavButtons();
+      initHistory();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        try {
+          init();
+        } catch (error) {
+          // If setup fails for any reason, the Main Menu markup is already
+          // visible by default (see its "screen--visible" class in the
+          // HTML), so the site still works -- only the fade/focus/history
+          // enhancements would be unavailable.
+        }
+      });
+    } else {
+      try {
+        init();
+      } catch (error) {
+        /* See comment above. */
+      }
+    }
+  })();
+</script>
 
 </body>
 </html>
