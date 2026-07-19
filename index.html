@@ -673,21 +673,57 @@
 <section id="screen-support" class="screen" hidden data-screen="support" aria-labelledby="support-heading">
   <div class="content-panel">
     <h2 id="support-heading" tabindex="-1" data-screen-heading>Support</h2>
-    <p>Report a game issue, suggest an improvement, or request new content. Please include the game name and enough detail for us to understand your message.</p>
 
-    <form class="support-form" action="sodapopstudios.dev@gmail.com" method="POST">
-      <input type="hidden" name="_subject" value="New Someone Plays Website Support Message">
-      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" hidden>
+    <p>
+      Report a game issue, suggest an improvement, or request new content.
+      Please include the game name and enough detail for us to understand your message.
+    </p>
+
+    <form
+      class="support-form"
+      action="https://formspree.io/f/YOUR_REAL_FORM_ID"
+      method="POST"
+    >
+      <input
+        type="hidden"
+        name="_subject"
+        value="New Someone Plays Website Support Message"
+      >
+
+      <input
+        type="text"
+        name="_gotcha"
+        tabindex="-1"
+        autocomplete="off"
+        aria-hidden="true"
+        hidden
+      >
 
       <label for="support-message">Your message</label>
-      <textarea id="support-message" name="message" rows="8" maxlength="3000" required placeholder="Tell us about the issue, suggestion, or game request..."></textarea>
 
-      <button type="submit" class="support-submit-btn">SEND MESSAGE</button>
+      <textarea
+        id="support-message"
+        name="message"
+        rows="8"
+        maxlength="3000"
+        required
+        placeholder="Tell us about the issue, suggestion, or game request..."
+      ></textarea>
+
+      <button type="submit" class="support-submit-btn">
+        SEND MESSAGE
+      </button>
     </form>
 
-    <p class="support-note">Please do not include passwords, payment details, or other sensitive personal information. This form does not collect your email address, so we cannot reply directly.</p>
+    <p class="support-note">
+      Please do not include passwords, payment details, or other sensitive
+      personal information. This form does not collect your email address,
+      so we cannot reply directly.
+    </p>
 
-    <button type="button" class="back-btn" data-nav-target="menu"><span class="back-btn__arrow" aria-hidden="true">&#8592;</span> BACK</button>
+    <button type="button" class="back-btn" data-nav-target="menu">
+      <span class="back-btn__arrow" aria-hidden="true">&#8592;</span> BACK
+    </button>
   </div>
 </section>
 
